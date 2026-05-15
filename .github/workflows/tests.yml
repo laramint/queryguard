@@ -1,0 +1,92 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: "Laravel ${{ matrix.laravel }} / PHP ${{ matrix.php }}"
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Laravel 9 — PHPUnit 10 (requires Laravel 9.52+)
+          - laravel: 9
+            php: "8.2"
+            testbench: "^7.0"
+            phpunit: "^10.5"
+
+          # Laravel 10
+          - laravel: 10
+            php: "8.2"
+            testbench: "^8.0"
+            phpunit: "^10.5"
+          - laravel: 10
+            php: "8.3"
+            testbench: "^8.0"
+            phpunit: "^10.5"
+
+          # Laravel 11
+          - laravel: 11
+            php: "8.2"
+            testbench: "^9.0"
+            phpunit: "^10.5"
+          - laravel: 11
+            php: "8.3"
+            testbench: "^9.0"
+            phpunit: "^11.0"
+
+          # Laravel 12
+          - laravel: 12
+            php: "8.2"
+            testbench: "^10.0"
+            phpunit: "^11.0"
+          - laravel: 12
+            php: "8.3"
+            testbench: "^10.0"
+            phpunit: "^11.0"
+          - laravel: 12
+            php: "8.4"
+            testbench: "^10.0"
+            phpunit: "^11.0"
+
+          # Laravel 13
+          - laravel: 13
+            php: "8.3"
+            testbench: "^11.0"
+            phpunit: "^11.0"
+          - laravel: 13
+            php: "8.4"
+            testbench: "^11.0"
+            phpunit: "^12.0"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, pdo, sqlite, pdo_sqlite
+          coverage: none
+
+      - name: Install dependencies
+        run: |
+          composer update \
+            --with "illuminate/support:^${{ matrix.laravel }}.0" \
+            --with "illuminate/database:^${{ matrix.laravel }}.0" \
+            --with "illuminate/console:^${{ matrix.laravel }}.0" \
+            --with "orchestra/testbench:${{ matrix.testbench }}" \
+            --with "phpunit/phpunit:${{ matrix.phpunit }}" \
+            --prefer-dist \
+            --no-interaction \
+            --no-progress
+
+      - name: Run tests
+        run: vendor/bin/phpunit

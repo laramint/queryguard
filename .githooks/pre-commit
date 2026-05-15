@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ── PHP syntax check on staged files ────────────────────────────────────────
+STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep '\.php$' || true)
+
+if [ -n "$STAGED" ]; then
+    echo "Checking PHP syntax..."
+    FAILED=0
+    for FILE in $STAGED; do
+        php -l "$FILE" > /dev/null 2>&1 || { echo "  Syntax error: $FILE"; FAILED=1; }
+    done
+    [ $FAILED -eq 1 ] && exit 1
+fi
+
+# ── PHPUnit ──────────────────────────────────────────────────────────────────
+echo "Running tests..."
+./vendor/bin/phpunit --colors=never
