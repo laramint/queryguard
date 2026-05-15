@@ -13,20 +13,43 @@ final class ConfigLoader
     {
         $defaults = require dirname(__DIR__, 2) . '/config/queryguard.php';
 
-        // When running under a Laravel app, prefer the published/merged config.
+        // 1. Try the Laravel config helper (available during an active app boot).
         if (function_exists('config')) {
             try {
                 $live = config('queryguard');
                 if (is_array($live) && $live !== []) {
-                    return array_replace_recursive($defaults, $live);
+                    self::$cached = array_replace_recursive($defaults, $live);
+                    return self::$cached;
                 }
             } catch (\Throwable) {
-                // Fall through to defaults — config() may not be available outside an app boot.
+                // Fall through — config() is unavailable when called from
+                // RunnerFinishedSubscriber (all test apps have been torn down).
+            }
+        }
+
+        // 2. Use a cached result from when the app WAS running.
+        if (self::$cached !== null) {
+            return self::$cached;
+        }
+
+        // 3. Try to require the published config file directly from disk.
+        $appConfig = getcwd() . '/config/queryguard.php';
+        if (is_file($appConfig)) {
+            try {
+                $published = require $appConfig;
+                if (is_array($published) && $published !== []) {
+                    return self::resolveDefaults(array_replace_recursive($defaults, $published));
+                }
+            } catch (\Throwable) {
+                // Malformed config — fall through to defaults.
             }
         }
 
         return self::resolveDefaults($defaults);
     }
+
+    /** @var array<string, mixed>|null */
+    private static ?array $cached = null;
 
     /**
      * @param array<string, mixed> $config

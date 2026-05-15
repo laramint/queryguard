@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace QueryGuard\Recorder;
 
+use Illuminate\Container\Container;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Events\QueryExecuted;
-use Illuminate\Support\Facades\DB;
 
 final class QueryRecorder
 {
@@ -23,13 +24,14 @@ final class QueryRecorder
         return self::$instance ??= new self();
     }
 
-    public function bootListener(): void
+    /**
+     * Register on a specific dispatcher instance (called by the service provider
+     * on every new Laravel application so each test's fresh app gets its own listener).
+     * Intentionally bypasses the $listening guard.
+     */
+    public function registerOnDispatcher(Dispatcher $dispatcher): void
     {
-        if ($this->listening) {
-            return;
-        }
-
-        DB::listen(function (QueryExecuted $event): void {
+        $dispatcher->listen(QueryExecuted::class, function (QueryExecuted $event): void {
             if ($this->current === null) {
                 return;
             }
@@ -40,13 +42,40 @@ final class QueryRecorder
                 connection: $event->connectionName,
             ));
         });
-
         $this->listening = true;
+    }
+
+    /**
+     * Attempt to register on the global container's events dispatcher.
+     * Called by the PHPUnit PreparedSubscriber before setUp() boots the app —
+     * returns silently if the container isn't ready yet. The service provider
+     * calls registerOnDispatcher() directly once the app is fully booted.
+     */
+    public function bootListener(): void
+    {
+        if ($this->listening) {
+            return;
+        }
+
+        $container = Container::getInstance();
+
+        if ($container === null || ! $container->bound('events')) {
+            return;
+        }
+
+        $this->registerOnDispatcher($container->make('events'));
     }
 
     public function startTest(string $testId): void
     {
         $this->current = new TestQueryProfile($testId);
+    }
+
+    public function setCurrentBudget(int $max): void
+    {
+        if ($this->current !== null) {
+            $this->current->queryBudget = $max;
+        }
     }
 
     public function endTest(): ?TestQueryProfile

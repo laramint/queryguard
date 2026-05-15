@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace QueryGuard\PHPUnit;
 
+use PHPUnit\Event\Code\TestMethod;
 use PHPUnit\Event\Test\Finished as TestFinished;
 use PHPUnit\Event\Test\FinishedSubscriber;
 use PHPUnit\Event\Test\Prepared as TestPrepared;
@@ -14,6 +15,7 @@ use PHPUnit\Runner\Extension\Extension;
 use PHPUnit\Runner\Extension\Facade;
 use PHPUnit\Runner\Extension\ParameterCollection;
 use PHPUnit\TextUI\Configuration\Configuration;
+use QueryGuard\Attributes\QueryBudget;
 use QueryGuard\Recorder\QueryRecorder;
 use QueryGuard\Runtime\RunMode;
 use QueryGuard\Runtime\TestRunFinalizer;
@@ -39,6 +41,19 @@ final class QueryGuardExtension implements Extension
             new class implements FinishedSubscriber {
                 public function notify(TestFinished $event): void
                 {
+                    $test = $event->test();
+                    if ($test instanceof TestMethod) {
+                        try {
+                            $attrs = (new \ReflectionMethod($test->className(), $test->methodName()))
+                                ->getAttributes(QueryBudget::class);
+                            if ($attrs !== []) {
+                                $budget = $attrs[0]->newInstance();
+                                QueryRecorder::instance()->setCurrentBudget($budget->max);
+                            }
+                        } catch (\ReflectionException) {
+                            // method may not exist if the test was skipped/error'd early
+                        }
+                    }
                     QueryRecorder::instance()->endTest();
                 }
             },

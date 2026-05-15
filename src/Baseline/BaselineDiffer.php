@@ -36,9 +36,25 @@ final class BaselineDiffer
                 continue;
             }
 
+            // @QueryBudget enforcement — always fatal, independent of baseline.
+            // Only SELECT queries count against the budget (INSERTs/UPDATEs/DELETEs
+            // are factory/seed setup noise, not application query cost).
+            if ($profile->queryBudget !== null && $profile->selectCount() > $profile->queryBudget) {
+                $regressions[] = new Regression(
+                    $id,
+                    Regression::KIND_BUDGET_EXCEEDED,
+                    sprintf('Query budget exceeded: %d SELECT queries > max %d', $profile->selectCount(), $profile->queryBudget),
+                );
+            }
+
             // Always-on intra-test detectors.
             foreach ($profile->signatureCounts() as $sig => $count) {
                 if ($this->matchesAny($sig, $ignoreSignatures)) {
+                    continue;
+                }
+                // N+1 is a SELECT concern; repeated writes (factory setup, bulk
+                // seeds) are a separate issue and should not be flagged here.
+                if (str_starts_with($sig, 'insert ') || str_starts_with($sig, 'update ') || str_starts_with($sig, 'delete ')) {
                     continue;
                 }
                 if ($count > $nPlusOneThreshold) {
@@ -65,14 +81,14 @@ final class BaselineDiffer
                 $regressions[] = new Regression(
                     $id,
                     Regression::KIND_NEW_TEST,
-                    sprintf('New test (no baseline): %d queries, %.1fms max', $profile->count(), $profile->maxDurationMs()),
+                    sprintf('New test (no baseline): %d queries, %.1fms max', $profile->selectCount(), $profile->maxDurationMs()),
                     fatal: false,
                 );
                 continue;
             }
 
             $base = $baseTests[$id];
-            $currentCount = $profile->count();
+            $currentCount = $profile->selectCount();
             $baseCount = (int) $base['query_count'];
             if ($currentCount > $baseCount + $tolExtraQueries) {
                 $regressions[] = new Regression(
@@ -93,7 +109,7 @@ final class BaselineDiffer
                 );
             }
 
-            $currentSigs = $profile->signatureCounts();
+            $currentSigs = $profile->readSignatureCounts();
             $baseSigs = $base['signatures'] ?? [];
             foreach ($currentSigs as $sig => $count) {
                 if ($this->matchesAny($sig, $ignoreSignatures)) {

@@ -12,6 +12,8 @@ final class TestQueryProfile
     /** @var list<string> */
     public array $violations = [];
 
+    public ?int $queryBudget = null;
+
     public function __construct(public readonly string $testId)
     {
     }
@@ -26,7 +28,33 @@ final class TestQueryProfile
         return count($this->queries);
     }
 
+    /** Count only SELECT queries — excludes factory/seed write operations. */
+    public function selectCount(): int
+    {
+        $count = 0;
+        foreach ($this->queries as $q) {
+            if (
+                ! str_starts_with($q->signature, 'insert ')
+                && ! str_starts_with($q->signature, 'update ')
+                && ! str_starts_with($q->signature, 'delete ')
+            ) {
+                $count++;
+            }
+        }
+
+        return $count;
+    }
+
+    private function isWrite(RecordedQuery $q): bool
+    {
+        return str_starts_with($q->signature, 'insert ')
+            || str_starts_with($q->signature, 'update ')
+            || str_starts_with($q->signature, 'delete ');
+    }
+
     /**
+     * Signature counts for all queries (used internally by differ for N+1 detection).
+     *
      * @return array<string, int>
      */
     public function signatureCounts(): array
@@ -34,6 +62,25 @@ final class TestQueryProfile
         $counts = [];
         foreach ($this->queries as $q) {
             $counts[$q->signature] = ($counts[$q->signature] ?? 0) + 1;
+        }
+        arsort($counts);
+
+        return $counts;
+    }
+
+    /**
+     * Signature counts excluding write operations — used for baseline storage
+     * and budget enforcement so factory/seed INSERTs don't inflate the numbers.
+     *
+     * @return array<string, int>
+     */
+    public function readSignatureCounts(): array
+    {
+        $counts = [];
+        foreach ($this->queries as $q) {
+            if (! $this->isWrite($q)) {
+                $counts[$q->signature] = ($counts[$q->signature] ?? 0) + 1;
+            }
         }
         arsort($counts);
 
@@ -68,9 +115,9 @@ final class TestQueryProfile
     public function toArray(): array
     {
         return [
-            'query_count' => $this->count(),
-            'signatures' => $this->signatureCounts(),
-            'max_duration_ms' => round($this->maxDurationMs(), 2),
+            'query_count'      => $this->selectCount(),
+            'signatures'       => $this->readSignatureCounts(),
+            'max_duration_ms'  => round($this->maxDurationMs(), 2),
             'total_duration_ms' => round($this->totalDurationMs(), 2),
         ];
     }
