@@ -1,3 +1,21 @@
+<p align="center">
+  <img src="art/queryguard-logo.png" alt="QueryGuard" width="300px"/>
+</p>
+
+<p align="center">
+  <strong>Zero-config CI gate for Laravel query regressions.</strong><br/>
+  Baseline query counts per test, surface N+1 patterns, and fail builds when tests drift — without manual per-test assertions.
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Laravel-9%20%7C%2010%20%7C%2011%20%7C%2012%20%7C%2013-red?style=flat-square&logo=laravel" alt="Laravel"/>
+  <img src="https://img.shields.io/badge/PHP-8.2%2B-777BB4?style=flat-square&logo=php" alt="PHP"/>
+  <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License"/>
+  <img src="https://img.shields.io/badge/Sponsor-GitHub-EA4AAA?style=flat-square&logo=github-sponsors" alt="Sponsor"/>
+  <br/><br/>
+  <a href="https://www.buymeacoffee.com/MrMarchOne"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-MrMarchOne-FFDD00?style=flat-square&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee"/></a>
+</p>
+
 # QueryGuard
 
 > **Zero-config CI gate for Laravel.** Auto-instruments your test suite, baselines query counts per test, and fails PRs that introduce N+1s or query regressions — without you adding a single assertion.
