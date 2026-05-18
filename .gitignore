@@ -6,4 +6,3 @@
 .env
 .DS_Store
 .idea/
-phpunit9.xml.dist
