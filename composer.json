@@ -3,7 +3,7 @@
     "description": "Zero-config CI gate for Laravel: auto-instruments your test suite, baselines query counts, and fails PRs that introduce N+1s or query regressions.",
     "type": "library",
     "license": "MIT",
-    "keywords": ["laravel", "n+1", "query", "performance", "phpunit", "pest", "ci"],
+    "keywords": ["laravel", "n-plus-one", "query", "performance", "phpunit", "pest", "ci"],
     "require": {
         "php": "^8.2",
         "illuminate/support": "^9.0|^10.0|^11.0|^12.0|^13.0",
