@@ -13,7 +13,9 @@
     "require-dev": {
         "phpunit/phpunit": "^9.5.10|^10.5|^11.0|^12.0",
         "orchestra/testbench": "^7.0|^8.0|^9.0|^10.0|^11.0",
-        "pestphp/pest": "^2.0|^3.0|^4.0"
+        "pestphp/pest": "^2.0|^3.0|^4.0",
+        "laravel/pint": "^1.0",
+        "larastan/larastan": "^2.11 || ^3.9"
     },
     "autoload": {
         "psr-4": {
@@ -34,7 +36,10 @@
     },
     "scripts": {
         "post-install-cmd": ["git config core.hooksPath .githooks || true"],
-        "post-update-cmd":  ["git config core.hooksPath .githooks || true"]
+        "post-update-cmd":  ["git config core.hooksPath .githooks || true"],
+        "lint":    "pint --test",
+        "fix":     "pint",
+        "analyse": "phpstan analyse --memory-limit=512M"
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
