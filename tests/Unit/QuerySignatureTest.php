@@ -49,6 +49,26 @@ final class QuerySignatureTest extends TestCase
         );
     }
 
+    public function test_keeps_double_quoted_identifiers_visible(): void
+    {
+        // SQLite/Postgres quote identifiers with double quotes — these are
+        // table/column names, not string values, and must survive.
+        self::assertSame(
+            'select count(*) as aggregate from blogs where blogs.user_id = ? and blogs.deleted_at is not null',
+            QuerySignature::normalize(
+                'select count(*) as aggregate from "blogs" where "blogs"."user_id" = ? and "blogs"."deleted_at" is not null'
+            ),
+        );
+    }
+
+    public function test_keeps_backtick_quoted_identifiers_visible(): void
+    {
+        self::assertSame(
+            'select * from users where users.id = ?',
+            QuerySignature::normalize('select * from `users` where `users`.`id` = ?'),
+        );
+    }
+
     public function test_lowercases_keywords_only(): void
     {
         // Identifiers (table/column names) should keep their original case.

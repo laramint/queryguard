@@ -15,11 +15,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Laravel 9 — PHPUnit 10 (requires Laravel 9.52+)
+          # Laravel 9 — testbench 7 only supports PHPUnit 9; Pest 2+ (PHPUnit 10) is removed for this job
           - laravel: 9
             php: "8.2"
             testbench: "^7.0"
-            phpunit: "^10.5"
+            phpunit: "^9.5.10"
 
           # Laravel 10
           - laravel: 10
@@ -78,6 +78,10 @@ jobs:
 
       - name: Install dependencies
         run: |
+          if [ "${{ matrix.laravel }}" = "9" ]; then
+            # Pest 2+ requires PHPUnit 10, which testbench 7 (Laravel 9) does not support.
+            composer remove --dev --no-update pestphp/pest
+          fi
           composer update \
             --with "illuminate/support:^${{ matrix.laravel }}.0" \
             --with "illuminate/database:^${{ matrix.laravel }}.0" \
@@ -89,4 +93,9 @@ jobs:
             --no-progress
 
       - name: Run tests
-        run: vendor/bin/phpunit
+        run: |
+          if [ "${{ matrix.laravel }}" = "9" ]; then
+            vendor/bin/phpunit -c phpunit9.xml.dist
+          else
+            vendor/bin/phpunit
+          fi

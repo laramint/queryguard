@@ -16,8 +16,11 @@ final class QuerySignature
         // Strip single-quoted strings (handle escaped quotes).
         $s = preg_replace("/'(?:''|\\\\.|[^'\\\\])*'/", '?', $s) ?? $s;
 
-        // Strip double-quoted strings (rare in MySQL/Postgres values, but possible).
-        $s = preg_replace('/"(?:""|\\\\.|[^"\\\\])*"/', '?', $s) ?? $s;
+        // Drop identifier-quoting characters so table/column names stay visible
+        // in the signature. SQLite/Postgres use double quotes and MySQL uses
+        // backticks to quote identifiers (not string values — Laravel binds
+        // values as `?`).
+        $s = str_replace(['"', '`'], '', $s);
 
         // Numeric literals.
         $s = preg_replace('/\b\d+(?:\.\d+)?\b/', '?', $s) ?? $s;

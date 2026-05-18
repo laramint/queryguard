@@ -11,7 +11,7 @@
         "illuminate/console": "^9.0|^10.0|^11.0|^12.0|^13.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.5|^11.0|^12.0",
+        "phpunit/phpunit": "^9.5.10|^10.5|^11.0|^12.0",
         "orchestra/testbench": "^7.0|^8.0|^9.0|^10.0|^11.0",
         "pestphp/pest": "^2.0|^3.0|^4.0"
     },
@@ -42,6 +42,12 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "audit": {
+            "ignore": {
+                "PKSA-8qx3-n5y5-vvnd": "Laravel 9 is EOL; advisory unavoidable while L9 stays in the test matrix",
+                "PKSA-w7xr-vk7n-rstm": "Laravel 9 is EOL; advisory unavoidable while L9 stays in the test matrix"
+            }
         }
     }
 }
