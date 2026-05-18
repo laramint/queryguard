@@ -11,6 +11,5 @@ final class RecordedQuery
         public readonly string $rawSql,
         public readonly float $durationMs,
         public readonly string $connection,
-    ) {
-    }
+    ) {}
 }

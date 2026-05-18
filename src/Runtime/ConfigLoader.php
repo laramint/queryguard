@@ -11,7 +11,7 @@ final class ConfigLoader
      */
     public static function load(): array
     {
-        $defaults = require dirname(__DIR__, 2) . '/config/queryguard.php';
+        $defaults = require dirname(__DIR__, 2).'/config/queryguard.php';
 
         // 1. Try the Laravel config helper (available during an active app boot).
         if (function_exists('config')) {
@@ -19,6 +19,7 @@ final class ConfigLoader
                 $live = config('queryguard');
                 if (is_array($live) && $live !== []) {
                     self::$cached = array_replace_recursive($defaults, $live);
+
                     return self::$cached;
                 }
             } catch (\Throwable) {
@@ -33,7 +34,7 @@ final class ConfigLoader
         }
 
         // 3. Try to require the published config file directly from disk.
-        $appConfig = getcwd() . '/config/queryguard.php';
+        $appConfig = getcwd().'/config/queryguard.php';
         if (is_file($appConfig)) {
             try {
                 $published = require $appConfig;
@@ -52,7 +53,7 @@ final class ConfigLoader
     private static ?array $cached = null;
 
     /**
-     * @param array<string, mixed> $config
+     * @param  array<string, mixed>  $config
      * @return array<string, mixed>
      */
     private static function resolveDefaults(array $config): array
@@ -60,7 +61,7 @@ final class ConfigLoader
         // The default baseline_path uses base_path() which only works inside a Laravel app.
         // When loaded outside (e.g. in PHPUnit extension before app bootstrap), fall back to cwd.
         if (! is_string($config['baseline_path'] ?? null)) {
-            $config['baseline_path'] = getcwd() . '/tests/.queryguard-baseline.json';
+            $config['baseline_path'] = getcwd().'/tests/.queryguard-baseline.json';
         }
 
         return $config;

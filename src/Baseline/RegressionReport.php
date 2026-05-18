@@ -7,11 +7,9 @@ namespace QueryGuard\Baseline;
 final class RegressionReport
 {
     /**
-     * @param list<Regression> $regressions
+     * @param  list<Regression>  $regressions
      */
-    public function __construct(public readonly array $regressions = [])
-    {
-    }
+    public function __construct(public readonly array $regressions = []) {}
 
     public function isEmpty(): bool
     {

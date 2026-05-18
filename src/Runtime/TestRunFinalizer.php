@@ -13,7 +13,7 @@ use QueryGuard\Reporter\MarkdownReporter;
 final class TestRunFinalizer
 {
     /**
-     * @param array<string, TestQueryProfile> $profiles
+     * @param  array<string, TestQueryProfile>  $profiles
      */
     public static function run(array $profiles): void
     {
@@ -23,7 +23,8 @@ final class TestRunFinalizer
 
         if ($mode === RunMode::BASELINE) {
             $store->save($profiles);
-            fwrite(STDOUT, "\n[QueryGuard] Baseline written: " . $store->path . " (" . count($profiles) . " tests)\n");
+            fwrite(STDOUT, "\n[QueryGuard] Baseline written: ".$store->path.' ('.count($profiles)." tests)\n");
+
             return;
         }
 
@@ -32,8 +33,8 @@ final class TestRunFinalizer
         $report = $differ->diff($profiles, $baseline);
 
         $reporter = ($config['reporter'] ?? 'console') === 'markdown'
-            ? new MarkdownReporter()
-            : new ConsoleReporter();
+            ? new MarkdownReporter
+            : new ConsoleReporter;
 
         fwrite(STDOUT, $reporter->render($report));
 

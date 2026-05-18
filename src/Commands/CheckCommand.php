@@ -31,11 +31,11 @@ final class CheckCommand extends Command
 
         $envPrefix = '';
         foreach ($env as $k => $v) {
-            $envPrefix .= escapeshellarg("{$k}={$v}") . ' ';
+            $envPrefix .= escapeshellarg("{$k}={$v}").' ';
         }
 
         $exit = 0;
-        passthru("env {$envPrefix}" . escapeshellcmd($bin), $exit);
+        passthru("env {$envPrefix}".escapeshellcmd($bin), $exit);
 
         return $exit;
     }

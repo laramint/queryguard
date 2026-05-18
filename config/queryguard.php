@@ -3,7 +3,7 @@
 return [
     'baseline_path' => function_exists('base_path')
         ? base_path('tests/.queryguard-baseline.json')
-        : getcwd() . '/tests/.queryguard-baseline.json',
+        : getcwd().'/tests/.queryguard-baseline.json',
 
     'tolerance' => [
         'extra_queries' => 2,

@@ -31,6 +31,7 @@ final class BaselineDifferTest extends TestCase
         foreach ($queries as $q) {
             $p->add(new RecordedQuery($q[0], $q[0], $q[1] ?? 1.0, 'testing'));
         }
+
         return $p;
     }
 

@@ -11,9 +11,7 @@ final class BaselineStore
 {
     public const FORMAT_VERSION = 1;
 
-    public function __construct(public readonly string $path)
-    {
-    }
+    public function __construct(public readonly string $path) {}
 
     public function exists(): bool
     {
@@ -43,7 +41,7 @@ final class BaselineStore
     }
 
     /**
-     * @param array<string, TestQueryProfile> $profiles
+     * @param  array<string, TestQueryProfile>  $profiles
      */
     public function save(array $profiles): void
     {
@@ -69,6 +67,6 @@ final class BaselineStore
             throw new RuntimeException('Failed to encode baseline JSON');
         }
 
-        file_put_contents($this->path, $json . "\n");
+        file_put_contents($this->path, $json."\n");
     }
 }

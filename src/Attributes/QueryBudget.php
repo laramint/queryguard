@@ -12,6 +12,5 @@ final class QueryBudget
     public function __construct(
         public readonly int $max,
         public readonly ?int $maxDurationMs = null,
-    ) {
-    }
+    ) {}
 }

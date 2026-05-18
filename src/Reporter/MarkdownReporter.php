@@ -19,7 +19,7 @@ final class MarkdownReporter
             $byTest[$r->testId][] = $r;
         }
 
-        $out = "### QueryGuard — " . $report->count() . " issue(s)\n\n";
+        $out = '### QueryGuard — '.$report->count()." issue(s)\n\n";
         foreach ($byTest as $testId => $items) {
             $out .= "**`{$testId}`**\n\n";
             foreach ($items as $r) {

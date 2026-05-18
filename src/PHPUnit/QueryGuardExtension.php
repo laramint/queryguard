@@ -31,14 +31,16 @@ final class QueryGuardExtension implements Extension
         }
 
         $facade->registerSubscribers(
-            new class implements PreparedSubscriber {
+            new class implements PreparedSubscriber
+            {
                 public function notify(TestPrepared $event): void
                 {
                     QueryRecorder::instance()->bootListener();
                     QueryRecorder::instance()->startTest($event->test()->id());
                 }
             },
-            new class implements FinishedSubscriber {
+            new class implements FinishedSubscriber
+            {
                 public function notify(TestFinished $event): void
                 {
                     $test = $event->test();
@@ -57,7 +59,8 @@ final class QueryGuardExtension implements Extension
                     QueryRecorder::instance()->endTest();
                 }
             },
-            new class implements RunnerFinishedSubscriber {
+            new class implements RunnerFinishedSubscriber
+            {
                 public function notify(RunnerFinished $event): void
                 {
                     TestRunFinalizer::run(QueryRecorder::instance()->profiles());

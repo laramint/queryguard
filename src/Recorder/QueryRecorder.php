@@ -21,7 +21,7 @@ final class QueryRecorder
 
     public static function instance(): self
     {
-        return self::$instance ??= new self();
+        return self::$instance ??= new self;
     }
 
     /**
@@ -59,7 +59,7 @@ final class QueryRecorder
 
         $container = Container::getInstance();
 
-        if ($container === null || ! $container->bound('events')) {
+        if (! $container->bound('events')) {
             return;
         }
 

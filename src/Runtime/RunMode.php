@@ -7,7 +7,9 @@ namespace QueryGuard\Runtime;
 final class RunMode
 {
     public const BASELINE = 'baseline';
+
     public const CHECK = 'check';
+
     public const REPORT = 'report';
 
     private static ?string $mode = null;

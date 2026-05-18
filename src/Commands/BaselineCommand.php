@@ -25,7 +25,7 @@ final class BaselineCommand extends Command
             if (! is_string($v)) {
                 continue;
             }
-            $envPrefix .= escapeshellarg("{$k}={$v}") . ' ';
+            $envPrefix .= escapeshellarg("{$k}={$v}").' ';
         }
 
         $exit = 0;

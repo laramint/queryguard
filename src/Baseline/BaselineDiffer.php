@@ -9,15 +9,13 @@ use QueryGuard\Recorder\TestQueryProfile;
 final class BaselineDiffer
 {
     /**
-     * @param array{tolerance: array{extra_queries: int, extra_duration_ms: int}, n_plus_one: array{threshold: int}, slow_query: array{threshold_ms: int}, ignore: array{signatures: list<string>, tests: list<string>}} $config
+     * @param  array{tolerance: array{extra_queries: int, extra_duration_ms: int}, n_plus_one: array{threshold: int}, slow_query: array{threshold_ms: int}, ignore: array{signatures: list<string>, tests: list<string>}}  $config
      */
-    public function __construct(private readonly array $config)
-    {
-    }
+    public function __construct(private readonly array $config) {}
 
     /**
-     * @param array<string, TestQueryProfile> $current
-     * @param array{tests: array<string, array{query_count: int, signatures: array<string, int>, max_duration_ms: float}>} $baseline
+     * @param  array<string, TestQueryProfile>  $current
+     * @param  array{tests: array<string, array{query_count: int, signatures: array<string, int>, max_duration_ms: float}>}  $baseline
      */
     public function diff(array $current, array $baseline): RegressionReport
     {
@@ -26,10 +24,10 @@ final class BaselineDiffer
         $tolExtraDuration = $this->config['tolerance']['extra_duration_ms'];
         $nPlusOneThreshold = $this->config['n_plus_one']['threshold'];
         $slowMs = $this->config['slow_query']['threshold_ms'];
-        $ignoreTests = $this->config['ignore']['tests'] ?? [];
-        $ignoreSignatures = $this->config['ignore']['signatures'] ?? [];
+        $ignoreTests = $this->config['ignore']['tests'];
+        $ignoreSignatures = $this->config['ignore']['signatures'];
 
-        $baseTests = $baseline['tests'] ?? [];
+        $baseTests = $baseline['tests'];
 
         foreach ($current as $id => $profile) {
             if ($this->matchesAny($id, $ignoreTests)) {
@@ -84,6 +82,7 @@ final class BaselineDiffer
                     sprintf('New test (no baseline): %d queries, %.1fms max', $profile->selectCount(), $profile->maxDurationMs()),
                     fatal: false,
                 );
+
                 continue;
             }
 
@@ -99,7 +98,7 @@ final class BaselineDiffer
             }
 
             $currentMax = $profile->maxDurationMs();
-            $baseMax = (float) ($base['max_duration_ms'] ?? 0);
+            $baseMax = (float) $base['max_duration_ms'];
             if ($currentMax > $baseMax + $tolExtraDuration) {
                 $regressions[] = new Regression(
                     $id,
@@ -110,7 +109,7 @@ final class BaselineDiffer
             }
 
             $currentSigs = $profile->readSignatureCounts();
-            $baseSigs = $base['signatures'] ?? [];
+            $baseSigs = $base['signatures'];
             foreach ($currentSigs as $sig => $count) {
                 if ($this->matchesAny($sig, $ignoreSignatures)) {
                     continue;
@@ -130,12 +129,12 @@ final class BaselineDiffer
     }
 
     /**
-     * @param list<string> $patterns
+     * @param  list<string>  $patterns
      */
     private function matchesAny(string $value, array $patterns): bool
     {
         foreach ($patterns as $pattern) {
-            $regex = '#^' . str_replace('\*', '.*', preg_quote($pattern, '#')) . '$#';
+            $regex = '#^'.str_replace('\*', '.*', preg_quote($pattern, '#')).'$#';
             if (preg_match($regex, $value) === 1) {
                 return true;
             }

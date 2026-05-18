@@ -14,9 +14,7 @@ final class TestQueryProfile
 
     public ?int $queryBudget = null;
 
-    public function __construct(public readonly string $testId)
-    {
-    }
+    public function __construct(public readonly string $testId) {}
 
     public function add(RecordedQuery $query): void
     {
@@ -115,9 +113,9 @@ final class TestQueryProfile
     public function toArray(): array
     {
         return [
-            'query_count'      => $this->selectCount(),
-            'signatures'       => $this->readSignatureCounts(),
-            'max_duration_ms'  => round($this->maxDurationMs(), 2),
+            'query_count' => $this->selectCount(),
+            'signatures' => $this->readSignatureCounts(),
+            'max_duration_ms' => round($this->maxDurationMs(), 2),
             'total_duration_ms' => round($this->totalDurationMs(), 2),
         ];
     }

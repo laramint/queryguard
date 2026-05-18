@@ -13,6 +13,14 @@ if [ -n "$STAGED" ]; then
     [ $FAILED -eq 1 ] && exit 1
 fi
 
+# ── Pint (code style) ────────────────────────────────────────────────────────
+echo "Running Pint..."
+./vendor/bin/pint --test
+
+# ── PHPStan (static analysis) ────────────────────────────────────────────────
+echo "Running PHPStan..."
+./vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+
 # ── PHPUnit ──────────────────────────────────────────────────────────────────
 echo "Running tests..."
 ./vendor/bin/phpunit --colors=never

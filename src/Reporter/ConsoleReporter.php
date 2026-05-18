@@ -14,12 +14,12 @@ final class ConsoleReporter
             return "\n[QueryGuard] No regressions detected.\n";
         }
 
-        $lines = ["\n[QueryGuard] " . $report->count() . ' issue(s):'];
+        $lines = ["\n[QueryGuard] ".$report->count().' issue(s):'];
         foreach ($report->regressions as $r) {
             $marker = $r->fatal ? 'FAIL' : 'warn';
             $lines[] = sprintf('  [%s] %s — %s (%s)', $marker, $r->testId, $r->message, $r->kind);
         }
 
-        return implode("\n", $lines) . "\n";
+        return implode("\n", $lines)."\n";
     }
 }

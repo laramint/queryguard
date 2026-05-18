@@ -13,7 +13,7 @@ final class QueryGuardServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../config/queryguard.php', 'queryguard');
+        $this->mergeConfigFrom(__DIR__.'/../config/queryguard.php', 'queryguard');
     }
 
     public function boot(): void
@@ -30,7 +30,7 @@ final class QueryGuardServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__ . '/../config/queryguard.php' => $this->app->configPath('queryguard.php'),
+                __DIR__.'/../config/queryguard.php' => $this->app->configPath('queryguard.php'),
             ], 'queryguard-config');
 
             $this->commands([
