@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace QueryGuard\Commands;
 
 use Illuminate\Console\Command;
+use QueryGuard\Runtime\TestProcessEnv;
 
 final class CheckCommand extends Command
 {
@@ -29,13 +30,10 @@ final class CheckCommand extends Command
 
         $this->info("[QueryGuard] Running {$bin} in {$mode} mode...");
 
-        $envPrefix = '';
-        foreach ($env as $k => $v) {
-            $envPrefix .= escapeshellarg("{$k}={$v}").' ';
-        }
+        $envPrefix = TestProcessEnv::prefix($env);
 
         $exit = 0;
-        passthru("env {$envPrefix}".escapeshellcmd($bin), $exit);
+        passthru($envPrefix.escapeshellcmd($bin), $exit);
 
         return $exit;
     }

@@ -21,7 +21,7 @@ final class QueryGuardServiceProvider extends ServiceProvider
         // Re-attempt listener registration now that the app is fully booted.
         // The PHPUnit extension's first attempt fires before setUp() and may
         // have been skipped because the container wasn't ready.
-        if ($this->app->runningUnitTests()) {
+        if (QueryRecorder::isActive() || $this->app->runningUnitTests()) {
             // Each test creates a new Application with a new event dispatcher.
             // Call registerOnDispatcher() directly (not bootListener()) so the
             // listener is always registered on this app's fresh dispatcher.

@@ -17,11 +17,33 @@ final class QueryRecorder
     /** @var array<string, TestQueryProfile> */
     private array $profiles = [];
 
-    private bool $listening = false;
+    /** @var \SplObjectStorage<Dispatcher, null> */
+    private \SplObjectStorage $dispatchers;
+
+    private static bool $active = false;
+
+    private function __construct()
+    {
+        $this->dispatchers = new \SplObjectStorage;
+    }
 
     public static function instance(): self
     {
         return self::$instance ??= new self;
+    }
+
+    /**
+     * Set once by the PHPUnit extension's bootstrap() — the authoritative
+     * "QueryGuard is running this suite" signal, available before any app boots.
+     */
+    public static function markActive(): void
+    {
+        self::$active = true;
+    }
+
+    public static function isActive(): bool
+    {
+        return self::$active;
     }
 
     /**
@@ -31,6 +53,11 @@ final class QueryRecorder
      */
     public function registerOnDispatcher(Dispatcher $dispatcher): void
     {
+        if ($this->dispatchers->contains($dispatcher)) {
+            return;
+        }
+        $this->dispatchers->attach($dispatcher);
+
         $dispatcher->listen(QueryExecuted::class, function (QueryExecuted $event): void {
             if ($this->current === null) {
                 return;
@@ -42,7 +69,6 @@ final class QueryRecorder
                 connection: $event->connectionName,
             ));
         });
-        $this->listening = true;
     }
 
     /**
@@ -53,10 +79,6 @@ final class QueryRecorder
      */
     public function bootListener(): void
     {
-        if ($this->listening) {
-            return;
-        }
-
         $container = Container::getInstance();
 
         if (! $container->bound('events')) {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace QueryGuard\Commands;
 
 use Illuminate\Console\Command;
+use QueryGuard\Runtime\TestProcessEnv;
 
 final class BaselineCommand extends Command
 {
@@ -15,21 +16,13 @@ final class BaselineCommand extends Command
     public function handle(): int
     {
         $bin = $this->option('phpunit') ?: 'vendor/bin/phpunit';
-        $env = ['QUERYGUARD_MODE' => 'baseline'] + $_ENV;
 
         $this->info("[QueryGuard] Recording baseline via {$bin}...");
 
-        $cmd = escapeshellcmd($bin);
-        $envPrefix = '';
-        foreach ($env as $k => $v) {
-            if (! is_string($v)) {
-                continue;
-            }
-            $envPrefix .= escapeshellarg("{$k}={$v}").' ';
-        }
+        $envPrefix = TestProcessEnv::prefix(['QUERYGUARD_MODE' => 'baseline']);
 
         $exit = 0;
-        passthru("env {$envPrefix}{$cmd}", $exit);
+        passthru($envPrefix.escapeshellcmd($bin), $exit);
 
         return $exit;
     }

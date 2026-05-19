@@ -24,6 +24,11 @@ final class QueryGuardExtension implements Extension
 {
     public function bootstrap(Configuration $configuration, Facade $facade, ParameterCollection $parameters): void
     {
+        // Authoritative "QueryGuard owns this suite" signal — set before any
+        // Laravel app boots so the service provider always re-attaches the
+        // query listener to each test's fresh event dispatcher.
+        QueryRecorder::markActive();
+
         // Mode is read by the Finalizer at runner-finished time.
         // Pass via parameter or environment variable: QUERYGUARD_MODE=baseline|check.
         if ($parameters->has('mode')) {
